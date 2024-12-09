@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 )
 
@@ -37,8 +39,14 @@ func main() {
 		}
 	}
 }
-func fetchPokemon() {
-	resp, err := http.Get("https://pokeapi.co/api/v2/pokemon/ditto")
+func autenticate() {
+	data := url.Values{}
+	data.Set("grant_type", "password")
+	data.Set("username", "RafaelSS")
+	data.Set("password", "fila4545")
+	data.Set("client_id", "personal-client-642bd0b4-7288-4fb7-ad53-45da5f9b78eb-b18c2790")
+	data.Set("client_secret", "i4papsLZE7225MCKmRUkZynhSLu7gM9k")
+	resp, err := http.Post("https://auth.mangadex.org/realms/mangadex/protocol/openid-connect/token", "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
@@ -60,5 +68,5 @@ func fetchPokemon() {
 }
 
 func init() {
-	go fetchPokemon()
+	go autenticate()
 }
