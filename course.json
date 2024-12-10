@@ -1,0 +1,17 @@
+{
+  "author": {
+    "name": "ThePrimeagen",
+    "company": "TheStartup, Try Harder™"
+  },
+  "title": "A Light Introduction Into HTMX",
+  "subtitle": "HTMX - The greatest not frontend frontend framework of all time",
+  "frontendMastersLink": "https://frontendmasters.com/courses/htmx",
+  "social": {
+    "twitter": "theprimeagen",
+    "twitch": "theprimeagen",
+    "youtube": "theprimeagen"
+  },
+  "description": "This course is designed for people with experience building front end applications and are looking for a reprieve from the insanity that is state management.",
+  "keywords": ["ThePrimeagen", "Live Coding", "TypeScript", "JavaScript", "HTMX", "React", "Golang", "SolidJS"],
+  "productionBaseUrl": "/fem-htmx"
+}

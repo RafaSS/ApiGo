@@ -1,3 +1,0 @@
-module ApiGo
-
-go 1.23.4
