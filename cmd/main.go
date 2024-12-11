@@ -32,7 +32,13 @@ func main() {
 
 	e.POST("/count", func(c echo.Context) error {
 		count.Count++
-		return c.Redirect(http.StatusSeeOther, "/")
+		template := views.Conter(&count)
+		var htmlBuilder strings.Builder
+		err := template.Render(c.Request().Context(), &htmlBuilder)
+		if err != nil {
+			return err
+		}
+		return c.HTML(http.StatusOK, htmlBuilder.String())
 	})
 
 	// Start the server

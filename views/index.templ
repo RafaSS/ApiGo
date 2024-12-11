@@ -18,8 +18,14 @@ templ Counts(Count *Counter) {
 			<link rel="stylesheet" href=""/>
 		</head>
 		<body>
-			Count :{ strconv.Itoa(Count.Count) }
-			<button hx-target="body" hx-post="/count">add</button>
+			<div id="counter">
+				@Conter(Count)
+			</div>
+			<button hx-target="#counter" hx-post="/count">add</button>
 		</body>
 	</html>
+}
+
+templ Conter(Count *Counter) {
+	Count :{ strconv.Itoa(Count.Count) }
 }
