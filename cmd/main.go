@@ -1,45 +1,40 @@
 package main
 
 import (
-	"html/template"
-	"io"
+	"net/http"
+	"strings"
+
+	"ApiGo/views"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type Templates struct {
-	templates *template.Template
-}
-
-type Counter struct {
-	Count int
-}
-
-func (t *Templates) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
-
-func NewTemplates() *Templates {
-	return &Templates{
-		templates: template.Must(template.ParseGlob("views/*.html")),
-	}
-}
+type Counter = views.Counter
 
 func main() {
-
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	e.Renderer = NewTemplates()
+	// Counter state
 	count := Counter{Count: 0}
+
+	// Route for rendering the template
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(200, "index", count)
-	})
-	e.POST("/count", func(c echo.Context) error {
-		count.Count++
-		return c.Render(200, "count", count)
+		template := views.Counts(&count)
+		var htmlBuilder strings.Builder
+		err := template.Render(c.Request().Context(), &htmlBuilder)
+		if err != nil {
+			return err
+		}
+		return c.HTML(http.StatusOK, htmlBuilder.String())
 	})
 
+	e.POST("/count", func(c echo.Context) error {
+		count.Count++
+		return c.Redirect(http.StatusSeeOther, "/")
+	})
+
+	// Start the server
 	e.Logger.Fatal(e.Start(":1323"))
 }

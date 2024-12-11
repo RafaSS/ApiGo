@@ -1,0 +1,25 @@
+package views
+
+import "strconv"
+
+type Counter struct {
+	Count int
+}
+
+templ Counts(Count *Counter) {
+	<html>
+		<head>
+			<meta charset="utf-8"/>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+			<script src="https://unpkg.com/htmx.org@1.9.9" integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX" crossorigin="anonymous"></script>
+			<title></title>
+			<meta name="description" content=""/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<link rel="stylesheet" href=""/>
+		</head>
+		<body>
+			Count :{ strconv.Itoa(Count.Count) }
+			<button hx-target="body" hx-post="/count">add</button>
+		</body>
+	</html>
+}
