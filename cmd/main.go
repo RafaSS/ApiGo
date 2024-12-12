@@ -43,7 +43,7 @@ func authenticate(username, password, clientID, clientSecret string) (string, st
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", "", fmt.Errorf("failed to authenticate: %s", resp.Status, data.Encode())
+		return "", "", fmt.Errorf("failed to authenticate: %s", resp.Status)
 	}
 
 	var result map[string]interface{}
@@ -118,12 +118,12 @@ func main() {
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SECRET")
 
-	authenticate, refreshTokenValue, err := authenticate(username, password, clientID, clientSecret)
+	_, refreshTokenValue, err := authenticate(username, password, clientID, clientSecret)
 	if err != nil {
 		fmt.Printf("Error authenticating: %v\n", err)
 		return
 	}
-	ticker := time.NewTicker(14 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
 
 	e := echo.New()
@@ -144,7 +144,7 @@ func main() {
 	})
 
 	e.POST("/count", func(c echo.Context) error {
-		count.Count = authenticate
+		count.Count = refreshTokenValue
 		template := views.Conter(&count)
 		var htmlBuilder strings.Builder
 		err := template.Render(c.Request().Context(), &htmlBuilder)
