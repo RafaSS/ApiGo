@@ -1,9 +1,7 @@
 package views
 
-import "strconv"
-
 type Counter struct {
-	Count int
+	Count string
 }
 
 templ Counts(Count *Counter) {
@@ -27,5 +25,5 @@ templ Counts(Count *Counter) {
 }
 
 templ Conter(Count *Counter) {
-	Count :{ strconv.Itoa(Count.Count) }
+	Count :{ Count.Count }
 }
