@@ -3,166 +3,145 @@ package types
 import "time"
 
 type Manga struct {
-	Result   string  `json:"result"`
-	Response string  `json:"response"`
-	Data     []Datum `json:"data"`
-	Limit    int64   `json:"limit"`
-	Offset   int64   `json:"offset"`
-	Total    int64   `json:"total"`
+	ID            string          `json:"id"`
+	Type          string          `json:"type"`
+	Attributes    MangaAttributes `json:"attributes"`
+	Relationships []Relationship  `json:"relationships"`
 }
 
-type Datum struct {
-	ID            string           `json:"id"`
-	Type          RelationshipType `json:"type"`
-	Attributes    DatumAttributes  `json:"attributes"`
-	Relationships []Relationship   `json:"relationships"`
-}
-
-type DatumAttributes struct {
-	Title                          Title             `json:"title"`
-	AltTitles                      []AltTitle        `json:"altTitles"`
-	Description                    PurpleDescription `json:"description"`
+type MangaAttributes struct {
+	Title                          LocalizedString   `json:"title"`
+	AltTitles                      []LocalizedString `json:"altTitles"`
+	Description                    LocalizedString   `json:"description"`
 	IsLocked                       bool              `json:"isLocked"`
-	Links                          Links             `json:"links"`
-	OriginalLanguage               OriginalLanguage  `json:"originalLanguage"`
+	Links                          map[string]string `json:"links"`
+	OriginalLanguage               string            `json:"originalLanguage"`
 	LastVolume                     *string           `json:"lastVolume"`
 	LastChapter                    *string           `json:"lastChapter"`
 	PublicationDemographic         *string           `json:"publicationDemographic"`
-	Status                         Status            `json:"status"`
-	Year                           int64             `json:"year"`
-	ContentRating                  ContentRating     `json:"contentRating"`
-	Tags                           []TagElement      `json:"tags"`
-	State                          State             `json:"state"`
+	Status                         string            `json:"status"`
+	Year                           *int              `json:"year"`
+	ContentRating                  string            `json:"contentRating"`
 	ChapterNumbersResetOnNewVolume bool              `json:"chapterNumbersResetOnNewVolume"`
-	CreatedAt                      time.Time         `json:"createdAt"`
-	UpdatedAt                      time.Time         `json:"updatedAt"`
-	Version                        int64             `json:"version"`
 	AvailableTranslatedLanguages   []string          `json:"availableTranslatedLanguages"`
 	LatestUploadedChapter          string            `json:"latestUploadedChapter"`
+	Tags                           []Tag             `json:"tags"`
+	State                          string            `json:"state"`
+	Version                        int64             `json:"version"`
+	CreatedAt                      time.Time         `json:"createdAt"`
+	UpdatedAt                      time.Time         `json:"updatedAt"`
 }
 
-type AltTitle struct {
-	En   *string `json:"en,omitempty"`
-	Tr   *string `json:"tr,omitempty"`
-	Ja   *string `json:"ja,omitempty"`
-	ZhHk *string `json:"zh-hk,omitempty"`
-	EsLa *string `json:"es-la,omitempty"`
-	JaRo *string `json:"ja-ro,omitempty"`
-	PtBr *string `json:"pt-br,omitempty"`
-	Vi   *string `json:"vi,omitempty"`
-	ID   *string `json:"id,omitempty"`
-	Ko   *string `json:"ko,omitempty"`
-	Fr   *string `json:"fr,omitempty"`
-	Ru   *string `json:"ru,omitempty"`
-	Zh   *string `json:"zh,omitempty"`
-	ZhRo *string `json:"zh-ro,omitempty"`
-	Uk   *string `json:"uk,omitempty"`
-}
+type LocalizedString map[string]string
 
-type PurpleDescription struct {
-	En   string  `json:"en"`
-	EsLa *string `json:"es-la,omitempty"`
-	ID   *string `json:"id,omitempty"`
-	PtBr *string `json:"pt-br,omitempty"`
-	Ko   *string `json:"ko,omitempty"`
-	Fr   *string `json:"fr,omitempty"`
-	Zh   *string `json:"zh,omitempty"`
-	Tr   *string `json:"tr,omitempty"`
-	Ja   *string `json:"ja,omitempty"`
-}
-
-type Links struct {
-	Al    *string `json:"al,omitempty"`
-	Ap    *string `json:"ap,omitempty"`
-	BW    *string `json:"bw,omitempty"`
-	Kt    *string `json:"kt,omitempty"`
-	Mu    *string `json:"mu,omitempty"`
-	Amz   *string `json:"amz,omitempty"`
-	Ebj   *string `json:"ebj,omitempty"`
-	Mal   *string `json:"mal,omitempty"`
-	Raw   *string `json:"raw,omitempty"`
-	Engtl *string `json:"engtl,omitempty"`
-	Nu    *string `json:"nu,omitempty"`
-	Cdj   *string `json:"cdj,omitempty"`
-}
-
-type TagElement struct {
-	ID            string        `json:"id"`
-	Type          TagType       `json:"type"`
-	Attributes    TagAttributes `json:"attributes"`
-	Relationships []interface{} `json:"relationships"`
+type Tag struct {
+	ID            string         `json:"id"`
+	Type          string         `json:"type"`
+	Attributes    TagAttributes  `json:"attributes"`
+	Relationships []Relationship `json:"relationships"`
 }
 
 type TagAttributes struct {
-	Name        Title             `json:"name"`
-	Description FluffyDescription `json:"description"`
-	Group       Group             `json:"group"`
-	Version     int64             `json:"version"`
-}
-
-type FluffyDescription struct {
-}
-
-type Title struct {
-	En string `json:"en"`
+	Name        LocalizedString `json:"name"`
+	Description LocalizedString `json:"description"`
+	Group       string          `json:"group"`
+	Version     int64           `json:"version"`
 }
 
 type Relationship struct {
-	ID      string           `json:"id"`
-	Type    RelationshipType `json:"type"`
-	Related *string          `json:"related,omitempty"`
+	ID         string      `json:"id"`
+	Type       string      `json:"type"`
+	Related    *string     `json:"related,omitempty"`
+	Attributes interface{} `json:"attributes,omitempty"`
 }
 
-type ContentRating string
-
 const (
-	Erotica    ContentRating = "erotica"
-	Safe       ContentRating = "safe"
-	Suggestive ContentRating = "suggestive"
+	Shounen = "shounen"
+	Shoujo  = "shoujo"
+	Josei   = "josei"
+	Seinen  = "seinen"
 )
 
-type OriginalLanguage string
-
 const (
-	Ja OriginalLanguage = "ja"
-	Ko OriginalLanguage = "ko"
-	Zh OriginalLanguage = "zh"
+	Completed = "completed"
+	Ongoing   = "ongoing"
+	Cancelled = "cancelled"
+	Hiatus    = "hiatus"
 )
 
-type State string
-
 const (
-	Published State = "published"
+	Safe         = "safe"
+	Suggestive   = "suggestive"
+	Erotica      = "erotica"
+	Pornographic = "pornographic"
 )
 
-type Status string
-
 const (
-	Completed Status = "completed"
-	Ongoing   Status = "ongoing"
+	Content = "content"
+	Format  = "format"
+	Genre   = "genre"
+	Theme   = "theme"
 )
 
-type Group string
-
 const (
-	Content Group = "content"
-	Format  Group = "format"
-	Genre   Group = "genre"
-	Theme   Group = "theme"
+	Draft     = "draft"
+	Submitted = "submitted"
+	Published = "published"
+	Rejected  = "rejected"
 )
 
-type TagType string
-
 const (
-	Tag TagType = "tag"
+	Monochrome       = "monochrome"
+	MainStory        = "main_story"
+	AdaptedFrom      = "adapted_from"
+	BasedOn          = "based_on"
+	Prequel          = "prequel"
+	SideStory        = "side_story"
+	Doujinshi        = "doujinshi"
+	SameFranchise    = "same_franchise"
+	SharedUniverse   = "shared_universe"
+	Sequel           = "sequel"
+	SpinOff          = "spin_off"
+	AlternateStory   = "alternate_story"
+	AlternateVersion = "alternate_version"
+	Preserialization = "preserialization"
+	Colored          = "colored"
+	Serialization    = "serialization"
 )
 
-type RelationshipType string
+type MangaRequest struct {
+	Title                          LocalizedString   `json:"title"`
+	AltTitles                      []LocalizedString `json:"altTitles"`
+	Description                    LocalizedString   `json:"description"`
+	Authors                        []string          `json:"authors"`
+	Artists                        []string          `json:"artists"`
+	Links                          map[string]string `json:"links"`
+	OriginalLanguage               string            `json:"originalLanguage"`
+	LastVolume                     *string           `json:"lastVolume,omitempty"`
+	LastChapter                    *string           `json:"lastChapter,omitempty"`
+	PublicationDemographic         *string           `json:"publicationDemographic,omitempty"`
+	Status                         string            `json:"status"`
+	Year                           *int              `json:"year,omitempty"`
+	ContentRating                  string            `json:"contentRating"`
+	ChapterNumbersResetOnNewVolume bool              `json:"chapterNumbersResetOnNewVolume"`
+	Tags                           []string          `json:"tags"`
+	PrimaryCover                   *string           `json:"primaryCover,omitempty"`
+	Version                        int               `json:"version"`
+}
 
-const (
-	Artist    RelationshipType = "artist"
-	Author    RelationshipType = "author"
-	CoverArt  RelationshipType = "cover_art"
-	Creator   RelationshipType = "creator"
-	TypeManga RelationshipType = "manga"
-)
+type MangaResponse struct {
+	Result   string `json:"result"`
+	Response string `json:"response"`
+	Data     Manga  `json:"data"`
+}
+
+// Add MangaViewModel struct
+type MangaViewModel struct {
+	*Manga
+	AuthorName string
+}
+
+// Add MangaListViewModel struct
+type MangaListViewModel struct {
+	Mangas []*MangaViewModel
+}

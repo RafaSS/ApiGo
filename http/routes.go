@@ -3,7 +3,6 @@ package http
 import (
 	"ApiGo/types"
 	"ApiGo/views"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,17 +12,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type Manga = views.Manga
-
 func SetupRoutes(e *echo.Echo) {
-	manga := types.Manga{}
 
-	// Route for rendering the template
 	e.GET("/", func(c echo.Context) error {
-		mangaObj := views.Manga{
-			Name: "fsaf",
+		// Initialize MangaViewModel with empty Manga and AuthorName
+		mangaObj := &types.MangaViewModel{
+			Manga:      &types.Manga{},
+			AuthorName: "",
 		}
-		template := views.Mangas(&mangaObj)
+		template := views.Mangas(mangaObj)
 		var htmlBuilder strings.Builder
 		err := template.Render(c.Request().Context(), &htmlBuilder)
 		if err != nil {
@@ -33,10 +30,16 @@ func SetupRoutes(e *echo.Echo) {
 	})
 
 	e.POST("/search", func(c echo.Context) error {
-		data := url.Values{}
-		data.Set("name", "Jujutsu")
+		// Get the search term from the form data
+		title := c.FormValue("title")
 
-		req, err := http.NewRequest("GET", "https://api.mangadex.org/manga", bytes.NewBufferString(data.Encode()))
+		// Use query parameters in the URL
+		queryParams := url.Values{}
+		queryParams.Set("title", title)
+
+		apiURL := "https://api.mangadex.org/manga?" + queryParams.Encode()
+
+		req, err := http.NewRequest("GET", apiURL, nil)
 		if err != nil {
 			return err
 		}
@@ -47,39 +50,50 @@ func SetupRoutes(e *echo.Echo) {
 			return err
 		}
 		defer resp.Body.Close()
-		// bodyBytes, err := io.ReadAll(resp.Body)
-		// if err != nil {
-		// 	return err
-		// }
-		// fmt.Println("🙏", string(bodyBytes))
+
 		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("failed to refresh token: %s", resp.Status)
+			return fmt.Errorf("failed to get manga: %s", resp.Status)
 		}
 
-		var result types.Manga
+		// Decode the response into a struct that matches the API response
+		var result struct {
+			Data []types.Manga `json:"data"`
+		}
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 			return err
 		}
 
-		// Extract the title from the response
 		if len(result.Data) > 0 {
-			manga = result
+			manga := &result.Data[0]
+			fmt.Println("🔍", result)
+
+			// Create MangaViewModel with manga data and author name
+			mangaObj := &types.MangaViewModel{
+				Manga:      manga,
+				AuthorName: getAuthorName(manga.Relationships),
+			}
+
+			template := views.Title(mangaObj)
+			var htmlBuilder strings.Builder
+
+			err = template.Render(c.Request().Context(), &htmlBuilder)
+			if err != nil {
+				return err
+			}
+			return c.HTML(http.StatusOK, htmlBuilder.String())
 		}
 
-		manga = result
-		fmt.Println("🔍", fmt.Sprintf("%v", manga.Data[0].ID))
-
-		mangaObj := views.Manga{
-			Name: manga.Data[0].ID,
-		}
-
-		template := views.Title(&mangaObj)
-		var htmlBuilder strings.Builder
-
-		err = template.Render(c.Request().Context(), &htmlBuilder)
-		if err != nil {
-			return err
-		}
-		return c.HTML(http.StatusOK, htmlBuilder.String())
+		return c.String(http.StatusNotFound, "No manga found")
 	})
+}
+
+// Helper function to get the author's name
+func getAuthorName(relationships []types.Relationship) string {
+	for _, rel := range relationships {
+		if rel.Type == "author" {
+			fmt.Println("👩‍🎨", rel)
+			return rel.ID
+		}
+	}
+	return "Unknown Author"
 }

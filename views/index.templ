@@ -1,10 +1,8 @@
 package views
 
-type Manga struct {
-	Name string
-}
+import "ApiGo/types"
 
-templ Mangas(Manga *Manga) {
+templ Mangas(Manga *types.MangaViewModel) {
 	<html>
 		<head>
 			<meta charset="utf-8"/>
@@ -16,14 +14,19 @@ templ Mangas(Manga *Manga) {
 			<link rel="stylesheet" href=""/>
 		</head>
 		<body>
+			<form hx-post="/search" hx-target="#Manga">
+				<input type="text" name="title" placeholder="Enter manga title"/>
+				<button type="submit">Search</button>
+			</form>
 			<div id="Manga">
 				@Title(Manga)
 			</div>
-			<button hx-target="#Manga" hx-post="/search">refresh</button>
 		</body>
 	</html>
 }
 
-templ Title(Manga *Manga) {
-	Manga :{ Manga.Name }
+templ Title(Manga *types.MangaViewModel) {
+	<h1>Manga: { Manga.Attributes.Title["en"] }</h1>
+	<p>Description: { Manga.Attributes.Description["en"] }</p>
+	<p>Author: { Manga.AuthorName }</p>
 }
