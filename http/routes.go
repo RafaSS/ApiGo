@@ -2,30 +2,29 @@ package http
 
 import (
 	"ApiGo/types"
-	"ApiGo/views"
-	"encoding/json"
-	"fmt"
+	"ApiGo/views" // Added log package
 	"net/http"
-	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
-func SetupRoutes(e *echo.Echo) {
+func SetupRoutes(e *echo.Echo, mangaService types.MangaService) {
 
 	e.GET("/", func(c echo.Context) error {
-		// Initialize MangaViewModel with empty Manga and AuthorName
-		mangaObj := &types.MangaViewModel{
-			Manga:      &types.Manga{},
-			AuthorName: "",
-		}
-		template := views.Mangas(mangaObj)
-		var htmlBuilder strings.Builder
-		err := template.Render(c.Request().Context(), &htmlBuilder)
+		viewModel, err := mangaService.GetMangaList(1)
 		if err != nil {
 			return err
 		}
+
+		// Render the template with the view model
+		template := views.Mangas(viewModel)
+		var htmlBuilder strings.Builder
+		if err := template.Render(c.Request().Context(), &htmlBuilder); err != nil {
+			return err
+		}
+
 		return c.HTML(http.StatusOK, htmlBuilder.String())
 	})
 
@@ -33,67 +32,46 @@ func SetupRoutes(e *echo.Echo) {
 		// Get the search term from the form data
 		title := c.FormValue("title")
 
-		// Use query parameters in the URL
-		queryParams := url.Values{}
-		queryParams.Set("title", title)
-
-		apiURL := "https://api.mangadex.org/manga?" + queryParams.Encode()
-
-		req, err := http.NewRequest("GET", apiURL, nil)
+		// Fetch the manga list with search parameter
+		viewModel, err := mangaService.GetMangaListWithTitle(title)
 		if err != nil {
 			return err
 		}
 
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
+		// Render the template with the view model
+		template := views.Mangas(viewModel)
+		var htmlBuilder strings.Builder
 
-		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("failed to get manga: %s", resp.Status)
-		}
-
-		// Decode the response into a struct that matches the API response
-		var result struct {
-			Data []types.Manga `json:"data"`
-		}
-		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		if err := template.Render(c.Request().Context(), &htmlBuilder); err != nil {
 			return err
 		}
 
-		if len(result.Data) > 0 {
-			manga := &result.Data[0]
-			fmt.Println("🔍", result)
-
-			// Create MangaViewModel with manga data and author name
-			mangaObj := &types.MangaViewModel{
-				Manga:      manga,
-				AuthorName: getAuthorName(manga.Relationships),
-			}
-
-			template := views.Title(mangaObj)
-			var htmlBuilder strings.Builder
-
-			err = template.Render(c.Request().Context(), &htmlBuilder)
-			if err != nil {
-				return err
-			}
-			return c.HTML(http.StatusOK, htmlBuilder.String())
-		}
-
-		return c.String(http.StatusNotFound, "No manga found")
+		return c.HTML(http.StatusOK, htmlBuilder.String())
 	})
-}
 
-// Helper function to get the author's name
-func getAuthorName(relationships []types.Relationship) string {
-	for _, rel := range relationships {
-		if rel.Type == "author" {
-			fmt.Println("👩‍🎨", rel)
-			return rel.ID
+	e.GET("/list", func(c echo.Context) error {
+		// Get the page number from query parameters, default to 1
+		pageStr := c.QueryParam("page")
+		page := 1
+		if pageStr != "" {
+			if p, err := strconv.Atoi(pageStr); err == nil {
+				page = p
+			}
 		}
-	}
-	return "Unknown Author"
+
+		// Fetch manga list from the service
+		viewModel, err := mangaService.GetMangaList(page)
+		if err != nil {
+			return err
+		}
+
+		// Render the template with the view model
+		template := views.Mangas(viewModel)
+		var htmlBuilder strings.Builder
+		if err := template.Render(c.Request().Context(), &htmlBuilder); err != nil {
+			return err
+		}
+
+		return c.HTML(http.StatusOK, htmlBuilder.String())
+	})
 }

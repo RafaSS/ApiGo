@@ -143,5 +143,23 @@ type MangaViewModel struct {
 
 // Add MangaListViewModel struct
 type MangaListViewModel struct {
-	Mangas []*MangaViewModel
+	Mangas      []*MangaViewModel
+	CurrentPage int
+}
+
+type MangaList struct {
+	Result   string  `json:"result" default:"ok"`
+	Response string  `json:"response" default:"collection"`
+	Data     []Manga `json:"data"`
+	Limit    int     `json:"limit"`
+	Offset   int     `json:"offset"`
+	Total    int     `json:"total"`
+}
+
+// MangaService defines the methods for fetching manga data.
+type MangaService interface {
+	GetMangaList(page int) (*MangaListViewModel, error)
+	GetMangaDetails(id string) (*MangaViewModel, error)
+	GetAuthorName(relationships []Relationship) string
+	GetMangaListWithTitle(title string) (*MangaListViewModel, error)
 }

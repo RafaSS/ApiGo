@@ -3,6 +3,7 @@ package main
 import (
 	"ApiGo/auth"
 	"ApiGo/http"
+	"ApiGo/services"
 	"fmt"
 	"os"
 	"time"
@@ -35,7 +36,9 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	http.SetupRoutes(e)
+	mangaService := &services.MangaServiceImpl{}
+
+	http.SetupRoutes(e, mangaService)
 
 	// Start the server
 	go func() {

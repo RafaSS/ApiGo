@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
+	"net/url" // Ensure this import is present
 )
 
 func Authenticate(username, password, clientID, clientSecret string) (string, string, error) {
