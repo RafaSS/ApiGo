@@ -1,4 +1,4 @@
-# ApiGo
+# ApiGo + HTMX + templ
 
 ## Description
 
