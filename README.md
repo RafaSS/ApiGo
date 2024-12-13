@@ -1,9 +1,5 @@
 # ApiGo
 
-[![Frontend Masters](https://static.frontendmasters.com/assets/brand/logos/full.png)](https://frontendmasters.com)
-
-This is a companion repo for the [HTMX & Go with ThePrimeagen](https://frontendmasters.com/courses/htmx) course on [Frontend Masters](https://frontendmasters.com).
-
 ## Description
 
 ApiGo is a Go-based API for managing and displaying manga lists by interacting with the MangaDex API. It allows users to search, view, and list their favorite mangas.
