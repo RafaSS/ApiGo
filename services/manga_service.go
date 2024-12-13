@@ -13,7 +13,9 @@ type MangaServiceImpl struct{}
 
 // GetMangaList fetches the list of mangas for a given page.
 func (s *MangaServiceImpl) GetMangaList(page int) (*types.MangaListViewModel, error) {
-	apiURL := fmt.Sprintf("https://api.mangadex.org/manga?page=%d", page)
+	limit := 10
+	offset := (page - 1) * limit
+	apiURL := fmt.Sprintf("https://api.mangadex.org/manga?limit=%d&offset=%d", limit, offset)
 
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
@@ -25,9 +27,11 @@ func (s *MangaServiceImpl) GetMangaList(page int) (*types.MangaListViewModel, er
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Println("🫡.", resp.StatusCode)
 		return nil, fmt.Errorf("failed to get manga list: %s", resp.Status)
 	}
 
