@@ -1,74 +1,75 @@
 package views
 
 import "ApiGo/types"
+import "fmt"
 
 templ headerComponent() {
-    <head>
-        <meta charset="utf-8"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-        <script src="https://unpkg.com/htmx.org@1.9.9" integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX" crossorigin="anonymous"></script>
-        <title>Manga List</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    </head>
+	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<script src="https://unpkg.com/htmx.org@1.9.9" integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX" crossorigin="anonymous"></script>
+		<title>Manga List</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	</head>
 }
 
 templ searchComponent() {
-    <form hx-post="/search" hx-target="#Manga">
-        <input type="text" name="title" placeholder="Enter manga title"/>
-        <button type="submit">Search</button>
-    </form>
+	<form hx-post="/search" hx-target="#MangaList">
+		<input type="text" name="title" placeholder="Enter manga title"/>
+		<button type="submit">Search</button>
+	</form>
 }
 
 templ mangaListComponent(mangas []*types.MangaViewModel) {
-    <table>
-        <thead>
-            <tr><th>Title</th><th>Author</th></tr>
-        </thead>
-        <tbody id="MangaList">
-            for _, manga := range mangas {
-                @ListManga(manga)
-            }
-        </tbody>
-    </table>
+	<table>
+		<thead>
+			<tr><th>Title</th><th>Author</th></tr>
+		</thead>
+		<tbody id="MangaList">
+			for _, manga := range mangas {
+				@ListManga(manga)
+			}
+		</tbody>
+	</table>
 }
 
 templ contentPage(content templ.Component) {
-    <html>
-        @headerComponent()
-        <body>
-            @searchComponent()
-            @content
-        </body>
-    </html>
+	<html>
+		@headerComponent()
+		<body>
+			@searchComponent()
+			@content
+		</body>
+	</html>
 }
 
 templ Mangas(MangaList *types.MangaListViewModel) {
-    @contentPage(mangaListComponent(MangaList.Mangas))
+	@contentPage(mangaListComponent(MangaList.Mangas))
 }
 
 templ indexPage(mangaList types.MangaListViewModel) {
-    @contentPage(mangaListComponent(mangaList.Mangas))
+	@contentPage(mangaListComponent(mangaList.Mangas))
 }
 
 templ ListMangaList(mangaList types.MangaListViewModel) {
-    <table>
-        <thead>
-            <tr><th>Title</th><th>Author</th></tr>
-        </thead>
-        <tbody id="MangaList">
-            for _, manga := range mangaList.Mangas {
-                @ListManga(manga)
-            }
-        </tbody>
-    </table>
-    <button
-        class="btn primary"
-        hx-get="/list?page={mangaList.CurrentPage + 1}"
-        hx-target="#MangaList"
-        hx-swap="beforeend"
-    >
-        Load More Mangas... <img class="htmx-indicator" src="/img/bars.svg"/>
-    </button>
+	<table>
+		<thead>
+			<tr><th>Title</th><th>Author</th></tr>
+		</thead>
+		<tbody id="MangaList">
+			for _, manga := range mangaList.Mangas {
+				@ListManga(manga)
+			}
+		</tbody>
+	</table>
+	<button
+		class="btn primary"
+		hx-get="/list?page={mangaList.CurrentPage + 1}"
+		hx-target="#MangaList"
+		hx-swap="beforeend"
+	>
+		Load More Mangas... <img class="htmx-indicator" src="/img/bars.svg"/>
+	</button>
 }
 
 templ Manga(Manga *types.MangaViewModel) {
@@ -80,7 +81,7 @@ templ Manga(Manga *types.MangaViewModel) {
 templ ListManga(Manga *types.MangaViewModel) {
 	<tr>
 		<td>
-			<a href="/manga/{ Manga.ID }" hx-get="/manga/{ Manga.ID }" hx-target="#Manga">
+			<a href={ string(templ.URL(fmt.Sprintf("/todo/edit/%d", Manga.ID))) } hx-get={ string(templ.URL(fmt.Sprintf("/todo/edit/%d", Manga.ID))) }>
 				{ Manga.Attributes.Title["en"] }
 			</a>
 		</td>
@@ -91,5 +92,3 @@ templ ListManga(Manga *types.MangaViewModel) {
 templ MangaPage(manga *types.MangaViewModel) {
 	@contentPage(Manga(manga))
 }
-
-
